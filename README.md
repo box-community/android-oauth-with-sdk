@@ -1,3 +1,8 @@
+<img src="images/box-dev-logo-clip.png" 
+alt= “box-dev-logo” 
+style="margin-left:-10px;"
+width=40%;>
+
 # android-oauth-with-sdk
 
 Source code for a blogpost about using Box Java SDK with OAuth in an Android app.
