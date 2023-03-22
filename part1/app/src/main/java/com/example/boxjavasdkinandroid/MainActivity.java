@@ -1,6 +1,5 @@
 package com.example.boxjavasdkinandroid;
 
-import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -20,6 +19,9 @@ import java.util.Objects;
 import java.util.UUID;
 
 public class MainActivity extends AppCompatActivity {
+
+    private String state;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -32,14 +34,22 @@ public class MainActivity extends AppCompatActivity {
     private void launchBoxTab() {
         List<String> scopes = Collections.singletonList("root_readonly");
         URI redirectUri = URI.create("oauth://boxinandroid");
-        String state = UUID.randomUUID().toString();
-        MainActivity.this.getPreferences(Context.MODE_PRIVATE)
-                .edit()
-                .putString("OAuthState", state)
-                .apply();
+        state = UUID.randomUUID().toString();
         URL authURL = BoxAPIConnection.getAuthorizationURL(getString(R.string.client_id),
                 redirectUri, state, scopes);
         new CustomTabsIntent.Builder().build().launchUrl(this, Uri.parse(authURL.toString()));
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        savedInstanceState.putString("State", state);
+        super.onSaveInstanceState(savedInstanceState);
+    }
+
+    @Override
+    public void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        state = savedInstanceState.getString("State");
     }
 
     @Override
@@ -48,10 +58,8 @@ public class MainActivity extends AppCompatActivity {
         if (intent != null) {
             Uri callback = intent.getData();
             String callbackState = callback.getQueryParameter("state");
-            String savedState = MainActivity.this.getPreferences(Context.MODE_PRIVATE)
-                    .getString("OAuthState", "");
 
-            if (!Objects.equals(callbackState, savedState)) {
+            if (!Objects.equals(callbackState, state)) {
                 Toast.makeText(MainActivity.this, "State validation failed!", Toast.LENGTH_LONG).show();
                 return;
             }
